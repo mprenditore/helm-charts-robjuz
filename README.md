@@ -1,4 +1,4 @@
-# robjuz Helm charts library
+# robjuz Helm charts library FORKED
 
 [![Artifact Hub](https://img.shields.io/endpoint?url=https://artifacthub.io/badge/repository/robjuz)](https://artifacthub.io/packages/search?repo=robjuz)
 
@@ -7,7 +7,7 @@ This repo is a collection of [Helm](https://helm.sh/) charts for software that I
 ## TL;DR
 
 ```bash
-$ helm repo add robjuz https://robjuz.github.io/helm-charts/
+$ helm repo add robjuz https://mprenditore.github.io/helm-charts-robjuz/
 $ helm search repo robjuz
 $ helm install my-release robjuz/<chart>
 ```
