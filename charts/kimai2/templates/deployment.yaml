@@ -214,7 +214,7 @@ spec:
           secret:
             secretName: {{ include "kimai.configSecretName" . }}
         {{- end }}
-        - name: kimai
+        - name: kimai-var
           {{- if .Values.persistence.enabled }}
           persistentVolumeClaim:
             claimName: {{ .Values.persistence.existingClaim | default (include "common.names.fullname" .) }}
