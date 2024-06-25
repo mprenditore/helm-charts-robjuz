@@ -190,7 +190,7 @@ spec:
           volumeMounts:
             - mountPath: /opt/kimai/var/data
               name: kimai-data
-              subPath: var
+              subPath: data
             {{- if .Values.extraVolumeMounts }}
             {{- include "common.tplvalues.render" (dict "value" .Values.extraVolumeMounts "context" $) | nindent 12 }}
             {{- end }}
