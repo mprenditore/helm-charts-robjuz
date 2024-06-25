@@ -191,6 +191,15 @@ spec:
             - mountPath: /opt/kimai/var/data
               name: kimai-data
               subPath: data
+            - mountPath: /opt/kimai/exports
+              name: kimai-exports
+              subPath: exports
+            - mountPath: /opt/kimai/invoices
+              name: kimai-invoices
+              subPath: invoices
+            - mountPath: /opt/kimai/plugins
+              name: kimai-plugins
+              subPath: plugins
             {{- if .Values.extraVolumeMounts }}
             {{- include "common.tplvalues.render" (dict "value" .Values.extraVolumeMounts "context" $) | nindent 12 }}
             {{- end }}
@@ -218,6 +227,27 @@ spec:
           {{- if .Values.persistence.enabled }}
           persistentVolumeClaim:
             claimName: {{ .Values.persistence.existingClaim | default (include "common.names.fullname" .) }}
+          {{- else }}
+          emptyDir: {}
+          {{- end }}
+        - name: kimai-exports
+          {{- if .Values.persistence.enabled }}
+          persistentVolumeClaim:
+            claimName: {{ .Values.persistence.existingClaim | default (include "common.names.fullname" .) }}-exports
+          {{- else }}
+          emptyDir: {}
+          {{- end }}
+        - name: kimai-invoices
+          {{- if .Values.persistence.enabled }}
+          persistentVolumeClaim:
+            claimName: {{ .Values.persistence.existingClaim | default (include "common.names.fullname" .) }}-invoices
+          {{- else }}
+          emptyDir: {}
+          {{- end }}
+        - name: kimai-plugins
+          {{- if .Values.persistence.enabled }}
+          persistentVolumeClaim:
+            claimName: {{ .Values.persistence.existingClaim | default (include "common.names.fullname" .) }}-plugins
           {{- else }}
           emptyDir: {}
           {{- end }}
