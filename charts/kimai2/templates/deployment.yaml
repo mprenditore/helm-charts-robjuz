@@ -94,7 +94,7 @@ spec:
           resources: {{- toYaml .Values.volumePermissions.resources | nindent 12 }}
         {{- end }}
           volumeMounts:
-            - mountPath: /opt/kimai/var
+            - mountPath: /opt/kimai/var/data
               name: kimai-data
       {{- end }}
       {{- if .Values.initContainers }}
@@ -188,8 +188,8 @@ spec:
           resources: {{- toYaml .Values.resources | nindent 12 }}
           {{- end }}
           volumeMounts:
-            - mountPath: /opt/kimai/var
-              name: kimai-var
+            - mountPath: /opt/kimai/var/data
+              name: kimai-data
               subPath: var
             {{- if .Values.extraVolumeMounts }}
             {{- include "common.tplvalues.render" (dict "value" .Values.extraVolumeMounts "context" $) | nindent 12 }}
@@ -214,7 +214,7 @@ spec:
           secret:
             secretName: {{ include "kimai.configSecretName" . }}
         {{- end }}
-        - name: kimai-var
+        - name: kimai-data
           {{- if .Values.persistence.enabled }}
           persistentVolumeClaim:
             claimName: {{ .Values.persistence.existingClaim | default (include "common.names.fullname" .) }}
