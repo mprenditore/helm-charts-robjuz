@@ -191,13 +191,13 @@ spec:
             - mountPath: /opt/kimai/var/data
               name: kimai-data
               subPath: data
-            - mountPath: /opt/kimai/exports
-              name: kimai-exports
-              subPath: exports
-            - mountPath: /opt/kimai/invoices
+            - mountPath: /opt/kimai/var/export
+              name: kimai-export
+              subPath: export
+            - mountPath: /opt/kimai/var/invoices
               name: kimai-invoices
               subPath: invoices
-            - mountPath: /opt/kimai/plugins
+            - mountPath: /opt/kimai/var/plugins
               name: kimai-plugins
               subPath: plugins
             {{- if .Values.extraVolumeMounts }}
@@ -230,10 +230,10 @@ spec:
           {{- else }}
           emptyDir: {}
           {{- end }}
-        - name: kimai-exports
+        - name: kimai-export
           {{- if .Values.persistence.enabled }}
           persistentVolumeClaim:
-            claimName: {{ .Values.persistence.existingClaim | default (include "common.names.fullname" .) }}-exports
+            claimName: {{ .Values.persistence.existingClaim | default (include "common.names.fullname" .) }}-export
           {{- else }}
           emptyDir: {}
           {{- end }}

@@ -1,4 +1,5 @@
 {{- if and .Values.persistence.enabled (not .Values.persistence.existingClaim) }}
+---
 kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
@@ -31,12 +32,12 @@ spec:
   {{- end }}
   {{- if .Values.persistence.selector }}
   selector: {{- include "common.tplvalues.render" (dict "value" .Values.persistence.selector "context" $) | nindent 4 }}
-  {{- end -}}
-
+  {{- end }}
+---
 kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
-  name: {{ include "common.names.fullname" . }}-exports
+  name: {{ include "common.names.fullname" . }}-export
   namespace: {{ .Release.Namespace | quote }}
   labels: {{- include "common.labels.standard" . | nindent 4 }}
     {{- if .Values.commonLabels }}
@@ -65,8 +66,8 @@ spec:
   {{- end }}
   {{- if .Values.persistence.selector }}
   selector: {{- include "common.tplvalues.render" (dict "value" .Values.persistence.selector "context" $) | nindent 4 }}
-  {{- end -}}
-
+  {{- end }}
+---
 kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
@@ -99,8 +100,8 @@ spec:
   {{- end }}
   {{- if .Values.persistence.selector }}
   selector: {{- include "common.tplvalues.render" (dict "value" .Values.persistence.selector "context" $) | nindent 4 }}
-  {{- end -}}
-
+  {{- end }}
+---
 kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
