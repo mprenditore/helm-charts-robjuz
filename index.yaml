@@ -230,6 +230,30 @@ entries:
     version: 0.1.0
   kimai2:
   - apiVersion: v2
+    appVersion: apache-2.21.0
+    created: "2024-09-09T06:27:43.718856232Z"
+    dependencies:
+    - condition: mariadb.enabled
+      name: mariadb
+      repository: oci://registry-1.docker.io/bitnamicharts
+      version: 11.5.7
+    - condition: redis.enabled
+      name: redis
+      repository: oci://registry-1.docker.io/bitnamicharts
+      version: 19.5.0
+    - name: common
+      repository: oci://registry-1.docker.io/bitnamicharts
+      tags:
+      - bitnami-common
+      version: 2.x.x
+    description: A Helm chart for Kubernetes
+    digest: 8a6ae7222abf0c7e580282d6dcc02891accfe0ccc2cd20aa7c8f1ba5e0c3c989
+    name: kimai2
+    type: application
+    urls:
+    - https://github.com/mprenditore/helm-charts-robjuz/releases/download/kimai2-4.2.4/kimai2-4.2.4.tgz
+    version: 4.2.4
+  - apiVersion: v2
     appVersion: apache-2.20.1
     created: "2024-08-09T12:55:03.083252016Z"
     dependencies:
@@ -1353,6 +1377,26 @@ entries:
     - https://github.com/robjuz/helm-charts/releases/download/kirby3-1.0.0/kirby3-1.0.0.tgz
     version: 1.0.0
   nominatim:
+  - annotations:
+      repository: robjuz/helm-charts
+    apiVersion: v2
+    appVersion: 4.4.1
+    created: "2024-09-09T06:27:43.829193207Z"
+    dependencies:
+    - name: common
+      repository: https://charts.bitnami.com/bitnami
+      version: 2.x.x
+    - condition: postgresql.enabled
+      name: postgresql
+      repository: https://charts.bitnami.com/bitnami
+      version: 15.5.20
+    description: A Helm chart for Kubernetes
+    digest: 91b17201a6a91c5563335ebbe9c72a28072c5bee4a7e7692696e40f03c45f578
+    name: nominatim
+    type: application
+    urls:
+    - https://github.com/mprenditore/helm-charts-robjuz/releases/download/nominatim-4.2.0/nominatim-4.2.0.tgz
+    version: 4.2.0
   - annotations:
       repository: robjuz/helm-charts
     apiVersion: v2
@@ -2513,4 +2557,4 @@ entries:
     urls:
     - https://github.com/robjuz/helm-charts/releases/download/unpubd-1.0.0/unpubd-1.0.0.tgz
     version: 1.0.0
-generated: "2024-08-09T12:55:03.286403165Z"
+generated: "2024-09-09T06:27:43.829556957Z"
