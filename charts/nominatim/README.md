@@ -47,18 +47,18 @@ initJob:
 
 postgresql:
   primary:
-      extendedConfiguration: |
-        shared_buffers = 2GB
-        maintenance_work_mem = 10GB
-        autovacuum_work_mem = 2GB
-        work_mem = 50MB
-        effective_cache_size = 24GB
-        synchronous_commit = off
-        max_wal_size = 1GB
-        checkpoint_timeout = 10min
-        checkpoint_completion_target = 0.9
-        fsync = off
-        full_page_writes = off
+    extendedConfiguration: |
+      shared_buffers = 2GB
+      maintenance_work_mem = 10GB
+      autovacuum_work_mem = 2GB
+      work_mem = 50MB
+      effective_cache_size = 24GB
+      synchronous_commit = off
+      max_wal_size = 1GB
+      checkpoint_timeout = 10min
+      checkpoint_completion_target = 0.9
+      fsync = off
+      full_page_writes = off
 ```
 
 To install the chart with the release name `nominatim`:
@@ -233,33 +233,41 @@ Note: The command above may differ a little depending the k8s cluster version yo
 | `updates.extraEnvVarsCM`     | Name of existing ConfigMap containing extra env vars                     | `""`                                                            |
 | `updates.extraEnvVarsSecret` | Name of existing Secret containing extra env vars                        | `""`                                                            |
 
-### Nominatim Updates Deployment parameters
+### Nominatim Updates CronJob parameters
 
-| Name                                                        | Description                                                                                                              | Value                                                           |
-|-------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------|
-| `updates.resources`                                         | Define resources requests and limits for the update job                                                                  | `{}`                                                            |
-| `updates.podLabels`                                         | Extra labels for Nominatim Updates pods                                                                                  | `{}`                                                            |
-| `updates.podAnnotations`                                    | Annotations for Nominatim Updates pods                                                                                   | `{}`                                                            |
-| `updates.podAffinityPreset`                                 | Pod affinity preset. Ignored if `affinity` is set. Allowed values: `soft` or `hard`                                      | `hard`                                                          |
-| `updates.podAntiAffinityPreset`                             | Pod anti-affinity preset. Ignored if `affinity` is set. Allowed values: `soft` or `hard`                                 | `""`                                                            |
-| `updates.nodeAffinityPreset.type`                           | Node affinity preset type. Ignored if `affinity` is set. Allowed values: `soft` or `hard`                                | `""`                                                            |
-| `updates.nodeAffinityPreset.key`                            | Node label key to match. Ignored if `affinity` is set                                                                    | `""`                                                            |
-| `updates.nodeAffinityPreset.values`                         | Node label values to match. Ignored if `affinity` is set                                                                 | `[]`                                                            |
-| `updates.affinity`                                          | Affinity for pod assignment                                                                                              | `{}`                                                            |
-| `updates.nodeSelector`                                      | Node labels for pod assignment                                                                                           | `{}`                                                            |
-| `updates.tolerations`                                       | Tolerations for pod assignment                                                                                           | `[]`                                                            |
-| `updates.schedulerName`                                     | Alternate scheduler                                                                                                      | `""`                                                            |
-| `updates.terminationGracePeriodSeconds`                     | In seconds, time given to the Nominatim pod to terminate gracefully                                                      | `""`                                                            |
-| `updates.topologySpreadConstraints`                         | Topology Spread Constraints for pod assignment spread across your cluster among failure-domains. Evaluated as a template | `[]`                                                            |
-| `updates.priorityClassName`                                 | Name of the existing priority class to be used by Nominatim pods, priority class needs to be created beforehand          | `""`                                                            |
-| `updates.podSecurityContext.enabled`                        | Enabled Nominatim pods' Security Context                                                                                 | `false`                                                         |
-| `updates.podSecurityContext.fsGroup`                        | Set Nominatim pod's Security Context fsGroup                                                                             | `1001`                                                          |
-| `updates.podSecurityContext.seccompProfile.type`            | Set Nominatim container's Security Context seccomp profile                                                               | `RuntimeDefault`                                                |
-| `updates.containerSecurityContext.enabled`                  | Enabled Nominatim containers' Security Context                                                                           | `false`                                                         |
-| `updates.containerSecurityContext.runAsUser`                | Set Nominatim container's Security Context runAsUser                                                                     | `1001`                                                          |
-| `updates.containerSecurityContext.runAsNonRoot`             | Set Nominatim container's Security Context runAsNonRoot                                                                  | `true`                                                          |
-| `updates.containerSecurityContext.allowPrivilegeEscalation` | Set Nominatim container's privilege escalation                                                                           | `false`                                                         |
-| `updates.containerSecurityContext.capabilities.drop`        | Set Nominatim container's Security Context runAsNonRoot                                                                  | `["ALL"]`                                                       |
+| Name                                                        | Description                                                                                                              | Value            |
+|-------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------|------------------|
+| `updates.schedule`                                          | The schedule in Cron format, see <https://en.wikipedia.org/wiki/Cron>                                                    | `0 * * * *`      |
+| `updates.timeZone`                                          | The time zone name for the given schedule, see <https://en.wikipedia.org/wiki/List_of_tz_database_time_zones>            | `""`             |
+| `updates.concurrencyPolicy`                                 | Specifies how to treat concurrent executions of a Job                                                                    | `Forbid`         |
+| `updates.startingDeadlineSeconds`                           | Optional deadline in seconds for starting the job if it misses scheduled time for any reason                             | `""`             |
+| `updates.suspend`                                           | This flag tells the controller to suspend subsequent executions                                                          | `""`             |
+| `updates.successfulJobsHistoryLimit`                        | The number of successful finished jobs to retain                                                                         | `""`             |
+| `updates.failedJobsHistoryLimit`                            | The number of failed finished jobs to retain                                                                             | `""`             |
+| `updates.backoffLimit`                                      | The number of retries before marking this job failed                                                                     | `""`             |
+| `updates.resources`                                         | Define resources requests and limits for the update job                                                                  | `{}`             |
+| `updates.podLabels`                                         | Extra labels for Nominatim Updates pods                                                                                  | `{}`             |
+| `updates.podAnnotations`                                    | Annotations for Nominatim Updates pods                                                                                   | `{}`             |
+| `updates.podAffinityPreset`                                 | Pod affinity preset. Ignored if `affinity` is set. Allowed values: `soft` or `hard`                                      | `hard`           |
+| `updates.podAntiAffinityPreset`                             | Pod anti-affinity preset. Ignored if `affinity` is set. Allowed values: `soft` or `hard`                                 | `""`             |
+| `updates.nodeAffinityPreset.type`                           | Node affinity preset type. Ignored if `affinity` is set. Allowed values: `soft` or `hard`                                | `""`             |
+| `updates.nodeAffinityPreset.key`                            | Node label key to match. Ignored if `affinity` is set                                                                    | `""`             |
+| `updates.nodeAffinityPreset.values`                         | Node label values to match. Ignored if `affinity` is set                                                                 | `[]`             |
+| `updates.affinity`                                          | Affinity for pod assignment                                                                                              | `{}`             |
+| `updates.nodeSelector`                                      | Node labels for pod assignment                                                                                           | `{}`             |
+| `updates.tolerations`                                       | Tolerations for pod assignment                                                                                           | `[]`             |
+| `updates.schedulerName`                                     | Alternate scheduler                                                                                                      | `""`             |
+| `updates.terminationGracePeriodSeconds`                     | In seconds, time given to the Nominatim pod to terminate gracefully                                                      | `""`             |
+| `updates.topologySpreadConstraints`                         | Topology Spread Constraints for pod assignment spread across your cluster among failure-domains. Evaluated as a template | `[]`             |
+| `updates.priorityClassName`                                 | Name of the existing priority class to be used by Nominatim pods, priority class needs to be created beforehand          | `""`             |
+| `updates.podSecurityContext.enabled`                        | Enabled Nominatim pods' Security Context                                                                                 | `false`          |
+| `updates.podSecurityContext.fsGroup`                        | Set Nominatim pod's Security Context fsGroup                                                                             | `1001`           |
+| `updates.podSecurityContext.seccompProfile.type`            | Set Nominatim container's Security Context seccomp profile                                                               | `RuntimeDefault` |
+| `updates.containerSecurityContext.enabled`                  | Enabled Nominatim containers' Security Context                                                                           | `false`          |
+| `updates.containerSecurityContext.runAsUser`                | Set Nominatim container's Security Context runAsUser                                                                     | `1001`           |
+| `updates.containerSecurityContext.runAsNonRoot`             | Set Nominatim container's Security Context runAsNonRoot                                                                  | `true`           |
+| `updates.containerSecurityContext.allowPrivilegeEscalation` | Set Nominatim container's privilege escalation                                                                           | `false`          |
+| `updates.containerSecurityContext.capabilities.drop`        | Set Nominatim container's Security Context runAsNonRoot                                                                  | `["ALL"]`        |
 
 ### Nominatim configuration parameters
 | Name                 | Description                                                              | Value |
@@ -422,22 +430,24 @@ Note: The command above may differ a little depending the k8s cluster version yo
 
 ### Database Parameters
 
-| Name                                          | Description                                                                                                                              | Value                         |
-|-----------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------|
-| `postgresql.enabled`                          | Deploy a PostgreSQL server to satisfy the applications database requirements                                                             | `true`                        |
-| `postgresql.image.repository`                 | PostgreSQL image repository                                                                                                              | `robjuz/postgresql-nominatim` |
-| `postgresql.image.tag`                        | PostgreSQL image tag                                                                                                                     | `14.4.0-4.0.1`                |
-| `postgresql.auth.postgresPassword`            | PostgreSQL root password                                                                                                                 | `nominatim`                   |
-| `postgresql.primary.persistence.enabled`      | Enable persistence on PostgreSQL using PVC(s)                                                                                            | `true`                        |
-| `postgresql.primary.persistence.storageClass` | Persistent Volume storage class                                                                                                          | `nil`                         |
-| `postgresql.primary.persistence.accessModes`  | Persistent Volume access modes                                                                                                           | `[ReadWriteOnce]`             |
-| `postgresql.primary.persistence.size`         | Persistent Volume size                                                                                                                   | `500Gi`                       |
-| `externalDatabase.host`                       | External PostgreSQL host (ignored if `postgresql.enabled = true`)                                                                        | localhost                     |
-| `externalDatabase.port`                       | External PostgreSQL post (ignored if `postgresql.enabled = true`)                                                                        | 5432                          |
-| `externalDatabase.user`                       | External PostgreSQL user (ignored if `postgresql.enabled = true`)                                                                        | nominatim                     |
-| `externalDatabase.password`                   | External PostgreSQL password (ignored if `postgresql.enabled = true`)                                                                    | ""                            |
-| `externalDatabase.existingSecretDsn`          | Name of existing secret to use to set full PostgreSQL DataSourceName (overrides `externalDatabase.*`)                                    | `nil`                         |
-| `externalDatabase.existingSecretDsnKey`       | Name of key in existing secret to use to set full PostgreSQL DataSourceName. Only used when `externalDatabase.existingSecretDsn` is set. | POSTGRESQL_DSN                |
+| Name                                          | Description                                                                                                                                                                                                                                             | Value                         |
+|-----------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------|
+| `postgresql.enabled`                          | Deploy a PostgreSQL server to satisfy the applications database requirements                                                                                                                                                                            | `true`                        |
+| `postgresql.image.repository`                 | PostgreSQL image repository                                                                                                                                                                                                                             | `robjuz/postgresql-nominatim` |
+| `postgresql.image.tag`                        | PostgreSQL image tag                                                                                                                                                                                                                                    | `14.4.0-4.0.1`                |
+| `postgresql.auth.postgresPassword`            | PostgreSQL root password                                                                                                                                                                                                                                | `nominatim`                   |
+| `postgresql.primary.persistence.enabled`      | Enable persistence on PostgreSQL using PVC(s)                                                                                                                                                                                                           | `true`                        |
+| `postgresql.primary.persistence.storageClass` | Persistent Volume storage class                                                                                                                                                                                                                         | `nil`                         |
+| `postgresql.primary.persistence.accessModes`  | Persistent Volume access modes                                                                                                                                                                                                                          | `[ReadWriteOnce]`             |
+| `postgresql.primary.persistence.size`         | Persistent Volume size                                                                                                                                                                                                                                  | `500Gi`                       |
+| `postgresql.primary.resourcesPreset`          | Set container resources according to one common preset (allowed values: none, nano, micro, small, medium, large, xlarge, 2xlarge). This is ignored if postgresql.primary.resources is set (postgresql.primary.resources is recommended for production). | `none`                        |
+| `postgresql.primary.resources`                | Set container requests and limits for different resources like CPU or memory (essential for production workloads)                                                                                                                                       | `{}`                          |
+| `externalDatabase.host`                       | External PostgreSQL host (ignored if `postgresql.enabled = true`)                                                                                                                                                                                       | localhost                     |
+| `externalDatabase.port`                       | External PostgreSQL post (ignored if `postgresql.enabled = true`)                                                                                                                                                                                       | 5432                          |
+| `externalDatabase.user`                       | External PostgreSQL user (ignored if `postgresql.enabled = true`)                                                                                                                                                                                       | nominatim                     |
+| `externalDatabase.password`                   | External PostgreSQL password (ignored if `postgresql.enabled = true`)                                                                                                                                                                                   | ""                            |
+| `externalDatabase.existingSecretDsn`          | Name of existing secret to use to set full PostgreSQL DataSourceName (overrides `externalDatabase.*`)                                                                                                                                                   | `nil`                         |
+| `externalDatabase.existingSecretDsnKey`       | Name of key in existing secret to use to set full PostgreSQL DataSourceName. Only used when `externalDatabase.existingSecretDsn` is set.                                                                                                                | POSTGRESQL_DSN                |
 
 ### Nominatim Appserver Parameters
 
@@ -463,13 +473,32 @@ Using flatnode with replication enabled requires the usage of a ReadWriteMany vo
 be shared within the pods.
 This also applies when scaling the nominatim deployment.
 
-
-
 ### PVC For data
 
 When importing large extracts (Europe/Planet) the data needed to be downloaded are quite big. If your server has not
 enough disk space to store the data, you can use a dedicated PV for this.
 
+### Dealing with import errors and continuing the import
+
+When there is an error during importing, you can check for logs:
+```console
+kubectl logs jobs/nominatim-init
+```
+To continue, you first need to delete the job
+```console
+kubectl delete jobs nominatim-init
+```
+
+then add the `initJob.continue` 
+```yaml
+initJob:
+  continue: load-data
+```
+
+and reinstall the chart
+```console
+helm upgrade --install nominatim robjuz/nominatim -f values.yaml
+```
 ### External database support
 
 You may want to have Nominatim connect to an external database rather than installing one inside your cluster. Typical
