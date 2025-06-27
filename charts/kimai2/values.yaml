@@ -26,7 +26,7 @@ kubeVersion: ""
 ## @param nameOverride String to partially override common.names.fullname template (will maintain the release name)
 ##
 nameOverride: ""
-## @param fullnameOverride String to fully override common.names.fullname template
+## @param fullnameOverride String to fully override common.names.fullname templatekimai
 ##
 fullnameOverride: ""
 ## @param commonLabels Labels to add to all deployed resources
@@ -73,7 +73,7 @@ diagnosticMode:
 image:
   registry: docker.io
   repository: kimai/kimai2
-  tag: apache-2.24.0
+  tag: apache-2.32.0
   digest: ""
   ## Specify a imagePullPolicy
   ## Defaults to 'Always' if image tag is 'latest', else set to 'IfNotPresent'
@@ -282,8 +282,9 @@ tolerations: []
 
 resources:
   limits:
-    memory: 256Mi
+    memory: 512Mi
   requests:
+    memory: 256Mi
     cpu: 100m
 ## Container ports
 ## @param containerPorts.http Kimai HTTP container port
@@ -881,7 +882,7 @@ externalDatabase:
   port: 3306
   ## @param externalDatabase.serverVersion External Database server version
   ##
-  serverVersion: '5.7'
+  serverVersion: "5.7"
   ## @param externalDatabase.user External Database username
   ##
   user: kimai

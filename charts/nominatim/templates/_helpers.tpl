@@ -87,7 +87,14 @@ Add environment variables to configure database values
 Create the database URL.
 */}}
 {{- define "nominatim.databaseUrl" -}}
-pgsql:host={{ include "nominatim.databaseHost" . }};port={{ include "nominatim.databasePort" . }};user={{ include "nominatim.databaseUser" . }};password={{ include "nominatim.databasePassword" . }};dbname={{ include "nominatim.databaseName" . }}
+postgresql://{{ include "nominatim.databaseUser" . }}:{{ include "nominatim.databasePassword" . }}@{{ include "nominatim.databaseHost" . }}:{{ include "nominatim.databasePort" . }}/{{ include "nominatim.databaseName" . }}
+{{- end }}
+
+{{/*
+Create the database DSN.
+*/}}
+{{- define "nominatim.databaseDSN" -}}
+pgsql:dbname={{ include "nominatim.databaseName" . }};host={{ include "nominatim.databaseHost" . }};port={{ include "nominatim.databasePort" . }};user={{ include "nominatim.databaseUser" . }};password={{ include "nominatim.databasePassword" . }}
 {{- end }}
 
 {{- define "nominatim.containerPort" -}}

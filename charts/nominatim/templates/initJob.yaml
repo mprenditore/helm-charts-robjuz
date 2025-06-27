@@ -27,12 +27,26 @@ spec:
       {{- end }}
       initContainers:
         - name: wait-for-db
-          image: chainguard/wait-for-it:latest
+          image: postgres
+          env:
+            - name: NOMINATIM_DATABASE_URL
+              {{- if .Values.externalDatabase.existingSecretDsn }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.externalDatabase.existingSecretDsn }}
+                  key: {{ .Values.externalDatabase.existingSecretDsnKey }}
+              {{- else }}
+              value: {{ include "nominatim.databaseUrl" . }}
+              {{- end }}
           args:
-            - -h
-            - {{ include "nominatim.databaseHost" . | quote}}
-            - -p
-            - {{ include "nominatim.databasePort" . | quote }}
+            - /bin/bash
+            - -c
+            - |
+              echo $NOMINATIM_DATABASE_URL;
+              until pg_isready -d $NOMINATIM_DATABASE_URL; do
+                echo "Waiting for database..."
+                sleep 2
+              done
 
         - name: download
           image: curlimages/curl
@@ -113,9 +127,8 @@ spec:
                 secretKeyRef:
                   name: {{ .Values.externalDatabase.existingSecretDsn }}
                   key: {{ .Values.externalDatabase.existingSecretDsnKey }}
-              {{- end }}
-              {{- if not .Values.externalDatabase.existingSecretDsn }}
-              value: {{ include "nominatim.databaseUrl" . }}
+              {{- else }}
+              value: {{ include "nominatim.databaseDSN" . }}
               {{- end }}
             {{- if .Values.flatnode.enabled }}
             - name: NOMINATIM_FLATNODE_FILE
