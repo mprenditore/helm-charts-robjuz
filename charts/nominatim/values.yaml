@@ -9,6 +9,8 @@
 ## @param global.storageClass Global StorageClass for Persistent Volume(s)
 ##
 global:
+  security:
+    allowInsecureImages: true #required for bitnamilegacy
   imageRegistry: ""
   ## E.g.
   ## imagePullSecrets:
@@ -73,7 +75,7 @@ diagnosticMode:
 image:
   registry: docker.io
   repository: mediagis/nominatim
-  tag: 4.4
+  tag: 5.1.0
   digest: ""
   ## Specify a imagePullPolicy
   ## Defaults to 'Always' if image tag is 'latest', else set to 'IfNotPresent'
@@ -87,11 +89,10 @@ image:
   ## pullSecrets:
   ##   - myRegistryKeySecretName
   ##
-  pullSecrets: [ ]
+  pullSecrets: []
   ## Enable debug mode
   ##
   debug: false
-
 
 ## @param command Override default container command (useful when using custom images)
 ##
@@ -99,9 +100,13 @@ command:
   - /bin/bash
   - -ec
   - |
-    nominatim refresh --website
-    a2enmod rewrite
-    /usr/sbin/apache2ctl -D FOREGROUND
+    gunicorn \
+      --bind :8080 \
+      --workers 4 \
+      --enable-stdio-inheritance \
+      --worker-class uvicorn.workers.UvicornWorker \
+      nominatim_api.server.falcon.server:run_wsgi
+
 ## @param args Override default container args (useful when using custom images)
 ##
 args: []
@@ -126,6 +131,9 @@ extraEnvVarsSecret: ""
 ## NOTE: ReadWriteMany PVC(s) are required if replicaCount > 1
 ##
 replicaCount: 1
+## @param revisionHistoryLimit Number of old ReplicaSets to retain to allow rollback
+## ref: https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#revision-history-limit
+revisionHistoryLimit: 10
 ## @param updateStrategy.type Nominatim deployment strategy type
 ## ref: https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#strategy
 ## NOTE: Set it to `Recreate` if you use a PV that cannot be mounted on multiple pods
@@ -299,7 +307,7 @@ containerSecurityContext:
 livenessProbe:
   enabled: true
   httpGet:
-    path: /
+    path: /status
     port: http
     ## If using an HTTPS-terminating load-balancer, the probes may need to behave
     ## like the balancer to prevent HTTP 302 responses. According to the Kubernetes
@@ -329,7 +337,7 @@ livenessProbe:
 readinessProbe:
   enabled: true
   httpGet:
-    path: /
+    path: /status
     port: http
     ## If using an HTTPS-terminating load-balancer, the probes may need to behave
     ## like the balancer to prevent HTTP 302 responses. According to the Kubernetes
@@ -359,7 +367,7 @@ readinessProbe:
 startupProbe:
   enabled: false
   httpGet:
-    path: /
+    path: /status
     port: http
     ## If using an HTTPS-terminating load-balancer, the probes may need to behave
     ## like the balancer to prevent HTTP 302 responses. According to the Kubernetes
@@ -557,6 +565,11 @@ ingress:
 
 initJob:
   enabled: false
+  initContainers:
+    waitForDB:
+      image: postgres:14-alpine
+    download:
+      image: curlimages/curl
 
   pbfUrl: https://download.geofabrik.de/europe/germany/sachsen-latest.osm.pbf
   importWikipedia: false
@@ -564,6 +577,16 @@ initJob:
   importUS_Postcode: false
   importStyle: full
   # customStyleUrl: https://raw.githubusercontent.com/david-mart/Nominatim/master/settings/import-street.style
+  ## @parm initJob.importFilterLua
+  ## If undefined, don't use custom import style
+  ## If defined, use own embedded custom style
+  ## More info about import styles:
+  ## https://nominatim.org/release-docs/develop/customize/Import-Styles/
+  importFilterLua:
+    enabled: false
+    configuration: |-
+      local flex = require('import-full')
+
   threads: 16
   freeze: false
   wikipediaUrl: https://nominatim.org/data/wikimedia-importance.sql.gz
@@ -575,6 +598,9 @@ initJob:
   ## More info on: https://nominatim.org/release-docs/latest/admin/Faq/#can-a-stoppedkilled-import-process-be-resumed
   ##
   continue:
+
+  ## @param initJob.dbWaitTimeout The number of seconds to wait for the DB to be ready to accept connections
+  dbWaitTimeout: 300
   ## @param initJob.backoffLimit set backoff limit of the job
   ##
   backoffLimit: 0
@@ -609,7 +635,7 @@ initJob:
     size: 100Gi
     ## @param initJob.persistence.dataSource Custom PVC data source
     ##
-    dataSource: { }
+    dataSource: {}
     ## @param initJob.persistence.existingClaim The name of an existing PVC to use for persistence
     ##
     existingClaim: ""
@@ -620,10 +646,10 @@ initJob:
     ##   matchLabels:
     ##     app: my-app
     ##
-    selector: { }
+    selector: {}
     ## @param initJob.persistence.annotations Persistent Volume Claim annotations
     ##
-    annotations: { }
+    annotations: {}
   ## Configure Pods Security Context
   ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-pod
   ## @param initJob.podSecurityContext.enabled Enabled Nominatim Replications pods' Security Context
@@ -649,7 +675,20 @@ initJob:
     runAsNonRoot: true
     allowPrivilegeEscalation: false
     capabilities:
-      drop: [ "ALL" ]
+      drop: ["ALL"]
+  ## @param initJob.extraEnvVars Array with extra environment variables to add to the Nominatim container
+  ## e.g:
+  ## extraEnvVars:
+  ##   - name: memory_limit
+  ##     value: "256M"
+  ##
+  extraEnvVars: []
+  ## @param initJob.extraEnvVarsCM Name of existing ConfigMap containing extra env vars
+  ##
+  extraEnvVarsCM: ""
+  ## @param initJob.extraEnvVarsSecret Name of existing Secret containing extra env vars
+  ##
+  extraEnvVarsSecret: ""
   ## @param initJob.resourcesPreset Set container resources according to one common preset (allowed values: none, nano, micro, small, medium, large, xlarge, 2xlarge). This is ignored if resources is set (resources is recommended for production).
   ## More information: https://github.com/bitnami/charts/blob/main/bitnami/common/templates/_resources.tpl#L15
   ##
@@ -816,7 +855,18 @@ updates:
   ##
   extraEnvVarsSecret: ""
 
-  resources: { }
+  ## @param initContainers Add additional init containers to the Nominatim pods
+  ## ref: https://kubernetes.io/docs/concepts/workloads/pods/init-containers/
+  ## e.g:
+  ## initContainers:
+  ##  - name: your-image-name
+  ##    image: your-image
+  ##    imagePullPolicy: Always
+  ##    command: ['sh', '-c', 'do magic here']
+  ##
+  initContainers: []
+
+  resources: {}
   # We usually recommend not to specify default resources and to leave this as a conscious
   # choice for the user. This also increases chances charts run on environments with little
   # resources, such as Minikube. If you do want to specify resources, uncomment the following
@@ -831,63 +881,58 @@ updates:
 nominatimUi:
   enabled: true
   version: 3.2.1
-  # apacheConfiguration configures the apache webserver that serves the UI.
-  apacheConfiguration: |-
-    <VirtualHost *:80>
-      DocumentRoot /nominatim/website
-      CustomLog "|$/usr/bin/rotatelogs -n 7 /var/log/apache2/access.log 86400" combined
-      ErrorLog  "|$/usr/bin/rotatelogs -n 7 /var/log/apache2/error.log 86400"
-      LogLevel info
+  initContainers:
+    download:
+      image: curlimages/curl
+  nginx:
+    image: nginx:1.29.3-alpine
+    imagePullPolicy: IfNotPresent
 
-      <Directory "/nominatim/nominatim-ui/dist">
-        DirectoryIndex search.html
-        Require all granted
-      </Directory>
+  # nginxConfiguration configures the nginx webserver that serves the UI.
+  nginxConfiguration: |-
+    server {
+      listen 80;
 
-      Alias /ui /nominatim/nominatim-ui/dist
+      index search.html;
+      root /nominatim/nominatim-ui/dist;
 
-      <Directory /nominatim/website>
-        Options FollowSymLinks MultiViews
-        DirectoryIndex search.php
-        Require all granted
+      # for debuging comment in this line, and the next line to your compose file:
+      # error_log /var/log/nginx/error.log debug;
+      # command: [nginx-debug, '-g', 'daemon off;']
 
-        RewriteEngine On
+      # n7m-api - Python endpoint
+      location /api/ {
+          rewrite /api/(.*) /$1 break;
+          proxy_set_header Host $http_host;
+          proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+          proxy_set_header X-Forwarded-Proto $scheme;
+          proxy_set_header Upgrade $http_upgrade;
+          proxy_set_header Connection $connection_upgrade;
+          proxy_redirect off;
+          proxy_buffering off;
+          proxy_pass http://127.0.0.1:8080;
+      }
 
-          # This must correspond to the URL where nominatim can be found.
-          RewriteBase "/"
+      # n7m-api - Python health endpoint
+      location /status {
+          proxy_set_header Host $http_host;
+          proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+          proxy_set_header X-Forwarded-Proto $scheme;
+          proxy_set_header Upgrade $http_upgrade;
+          proxy_set_header Connection $connection_upgrade;
+          proxy_redirect off;
+          proxy_buffering off;
+          proxy_pass http://127.0.0.1:8080;
+      }
+    }
 
-          # If no endpoint is given, then use search.
-          RewriteRule ^(/|$)   "search.php"
-
-          # If format-html is explicity requested, forward to the UI.
-          RewriteCond %{QUERY_STRING} "format=html"
-          RewriteRule ^([^/]+).php ui/$1.html [R,END]
-          # Same but .php suffix is missing.
-          RewriteCond %{QUERY_STRING} "format=html"
-          RewriteRule ^([^/]+) ui/$1.html [R,END]
-
-          # If no format parameter is there then forward anything
-          # but /reverse and /lookup to the UI.
-          RewriteCond %{QUERY_STRING} "!format="
-          RewriteCond %{REQUEST_URI}  "!/lookup"
-          RewriteCond %{REQUEST_URI}  "!/reverse"
-          RewriteRule ^([^/]+).php ui/$1.html [R,END]
-          # Same but .php suffix is missing.
-          RewriteCond %{QUERY_STRING} "!format="
-          RewriteCond %{REQUEST_URI}  "!/lookup"
-          RewriteCond %{REQUEST_URI}  "!/reverse"
-          RewriteRule ^([^/]+) ui/$1.html [R,END]
-      </Directory>
-
-      AddType text/html .php
-    </VirtualHost>
+    map $http_upgrade $connection_upgrade {
+      default upgrade;
+      '' close;
+    }
 
   configuration: |-
-    Nominatim_Config.Nominatim_API_Endpoint = '/';
-
-
-
-
+    Nominatim_Config.Nominatim_API_Endpoint = '/api/';
 
 ## @section Persistence Parameters
 ##
@@ -937,7 +982,7 @@ volumePermissions:
   ##
   enabled: false
   ## OS Shell + Utility image
-  ## ref: https://hub.docker.com/r/bitnami/os-shell/tags/
+  ## ref: https://hub.docker.com/r/bitnamilegacy/os-shell/tags/
   ## @param volumePermissions.image.registry [default: REGISTRY_NAME] OS Shell + Utility image registry
   ## @param volumePermissions.image.repository [default: REPOSITORY_NAME/os-shell] OS Shell + Utility image repository
   ## @skip volumePermissions.image.tag OS Shell + Utility image tag (immutable tags are recommended)
@@ -947,8 +992,8 @@ volumePermissions:
   ##
   image:
     registry: docker.io
-    repository: bitnami/os-shell
-    tag: 12-debian-12-r18
+    repository: bitnamilegacy/os-shell
+    tag: 12-debian-12-r51
     digest: ""
     pullPolicy: IfNotPresent
     ## Optionally specify an array of imagePullSecrets.
@@ -1012,11 +1057,16 @@ serviceAccount:
 ## @param pdb.create Enable a Pod Disruption Budget creation
 ## @param pdb.minAvailable Minimum number/percentage of pods that should remain scheduled
 ## @param pdb.maxUnavailable Maximum number/percentage of pods that may be made unavailable
+## @param pdb.pdbMatchExpressions MatchExpressions for the pdb selector. Excludes job object by default
 ##
 pdb:
   create: false
   minAvailable: 1
   maxUnavailable: ""
+  pdbMatchExpressions:
+    - key: job-name
+      operator: DoesNotExist
+
 ## Nominatim Autoscaling configuration
 ## ref: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/
 ## @param autoscaling.enabled Enable Horizontal POD autoscaling for Nominatim
@@ -1140,6 +1190,8 @@ networkPolicy:
 ##
 postgresql:
   enabled: true
+  image:
+    repository: bitnamilegacy/postgresql
 
   auth:
     postgresPassword: nominatim
@@ -1164,19 +1216,18 @@ postgresql:
     ##     cpu: 3
     ##     memory: 1024Mi
     ##
-    resources: { }
+    resources: {}
 
     extendedConfiguration: |
-        shared_buffers = 2GB
-        maintenance_work_mem = 10GB
-        autovacuum_work_mem = 2GB
-        work_mem = 50MB
-        effective_cache_size = 24GB
-        synchronous_commit = off
-        max_wal_size = 1GB
-        checkpoint_timeout = 10min
-        checkpoint_completion_target = 0.9
-
+      shared_buffers = 2GB
+      maintenance_work_mem = 10GB
+      autovacuum_work_mem = 2GB
+      work_mem = 50MB
+      effective_cache_size = 24GB
+      synchronous_commit = off
+      max_wal_size = 1GB
+      checkpoint_timeout = 10min
+      checkpoint_completion_target = 0.9
 
 externalDatabase:
   ## @param externalDatabase.existingSecretDsn Use an existing secret for the DSN (Data Source Name) to connect to the external PostgreSQL database
@@ -1197,3 +1248,6 @@ externalDatabase:
   ## @param externalDatabase.password External Database user password
   ##
   password: ""
+  ## @param externalDatabase.databaseName External Database name
+  ##
+  databaseName: nominatim

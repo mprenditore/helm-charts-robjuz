@@ -15,7 +15,7 @@ helm install nominatim robjuz/nominatim
 This chart bootstraps a [Nominatim](https://nominatim.org/) deployment on a [Kubernetes](http://kubernetes.io) cluster
 using the [Helm](https://helm.sh) package manager.
 
-It also packages a [Bitnami PostgreSQL chart](https://github.com/bitnami/charts/tree/master/bitnami/postgresql) 
+It also packages a [Bitnami PostgreSQL chart](https://github.com/bitnami/charts/tree/master/bitnami/postgresql)
 which is required for bootstrapping a PostgreSQL deployment for the database requirements of the Nominatim application.
 
 This chart has been tested to work with NGINX Ingress and cert-manager on top of the [MicroK8s](https://microk8s.io/).
@@ -187,17 +187,18 @@ Note: The command above may differ a little depending the k8s cluster version yo
 
 ### Nominatim Initialisation Configuration parameters
 
-| Name                        | Description                                                 | Value                                                                 |
-|-----------------------------|-------------------------------------------------------------|-----------------------------------------------------------------------|
-| `initJob.enabled`           | enable/disable init job                                     | `false `                                                              |
-| `initJob.pbfUrl`            | URL of the pbf file to import                               | `https://download.geofabrik.de/europe/germany/sachsen-latest.osm.pbf` |
-| `initJob.importWikipedia`   | If additional Wikipedia/Wikidata rankings should be importe | `false`                                                               |
-| `initJob.wikipediaUrl`      | Wikipedia/Wikidata rankings file URL                        | `https://nominatim.org/data/wikimedia-importance.sql.gz`              |
-| `initJob.importGB_Postcode` | If external GB postcodes should be imported                 | `false`                                                               |
-| `initJob.importUS_Postcode` | If external US postcodes should be imported                 | `false`                                                               |
-| `initJob.importStyle`       | Nominatim import style                                      | `full`                                                                |
-| `initJob.customStyleUrl`    | Custom import style file URL                                | `nil`                                                                 |
-| `initJob.threads`           | The number of thread used by the import                     | `16`                                                                  |
+| Name                        | Description                                                                | Value                                                                 |
+|-----------------------------|----------------------------------------------------------------------------|-----------------------------------------------------------------------|
+| `initJob.enabled`           | enable/disable init job                                                    | `false `                                                              |
+| `initJob.pbfUrl`            | URL of the pbf file to import                                              | `https://download.geofabrik.de/europe/germany/sachsen-latest.osm.pbf` |
+| `initJob.importWikipedia`   | If additional Wikipedia/Wikidata rankings should be importe                | `false`                                                               |
+| `initJob.wikipediaUrl`      | Wikipedia/Wikidata rankings file URL                                       | `https://nominatim.org/data/wikimedia-importance.sql.gz`              |
+| `initJob.importGB_Postcode` | If external GB postcodes should be imported                                | `false`                                                               |
+| `initJob.importUS_Postcode` | If external US postcodes should be imported                                | `false`                                                               |
+| `initJob.importStyle`       | Nominatim import style                                                     | `full`                                                                |
+| `initJob.customStyleUrl`    | Custom import style file URL                                               | `nil`                                                                 |
+| `initJob.threads`           | The number of thread used by the import                                    | `16`                                                                  |
+| `initJob.dbWaitTimeout`     | The number of seconds to wait for the DB to be ready to accept connections | `300`                                                                 |
 
 
 ### Nominatim Initialisation Deployment parameters
@@ -216,6 +217,9 @@ Note: The command above may differ a little depending the k8s cluster version yo
 | `initJob.resourcesPreset`           | Set container resources according to one common preset (allowed values: none, nano, micro, small, medium, large, xlarge, 2xlarge). This is ignored if resources is set (resources is recommended for production). | `micro`                                             |
 | `initJob.resources`                 | Set container requests and limits for different resources like CPU or memory (essential for production workloads)                                                                                                 | `{}`                                                |
 | `initJob.continue`                  | Select init step to continue from                                                                                                                                                                                 | `nil` `[ load-data \| indexing \| db-postprocess ]` |
+| `initJob.extraEnvVars`              | Array with extra environment variables to add to the Nominatim container                                                                                                                                          | `[]`                                                |
+| `initJob.extraEnvVarsCM`            | Name of existing ConfigMap containing extra env vars                                                                                                                                                              | `""`                                                |
+| `initJob.extraEnvVarsSecret`        | Name of existing Secret containing extra env vars                                                                                                                                                                 | `""`                                                |
 
 ### Nominatim Updates Configuration parameters
 | Name                         | Description                                                              | Value                                                           |
@@ -297,7 +301,7 @@ Note: The command above may differ a little depending the k8s cluster version yo
 | `nodeSelector`                                      | Node labels for pod assignment                                                                                                                                                                                    | `{}`             |
 | `tolerations`                                       | Tolerations for pod assignment                                                                                                                                                                                    | `[]`             |
 | `resourcesPreset`                                   | Set container resources according to one common preset (allowed values: none, nano, micro, small, medium, large, xlarge, 2xlarge). This is ignored if resources is set (resources is recommended for production). | `micro`          |
-| `resources`                                         | Set container requests and limits for different resources like CPU or memory (essential for production workloads)                                                                                                 | `{}`             | 
+| `resources`                                         | Set container requests and limits for different resources like CPU or memory (essential for production workloads)                                                                                                 | `{}`             |
 | `extraContainerPorts`                               | Optionally specify extra list of additional ports for Nominatim container(s)                                                                                                                                      | `[]`             |
 | `podSecurityContext.enabled`                        | Enabled Nominatim pods' Security Context                                                                                                                                                                          | `false`          |
 | `podSecurityContext.fsGroup`                        | Set Nominatim pod's Security Context fsGroup                                                                                                                                                                      | `1001`           |
@@ -375,7 +379,7 @@ Note: The command above may differ a little depending the k8s cluster version yo
 | `flatnode.annotations`                                 | Persistent Volume Claim annotations                                                                           | `{}`                    |
 | `volumePermissions.enabled`                            | Enable init container that changes the owner/group of the PV mount point to `runAsUser:fsGroup`               | `false`                 |
 | `volumePermissions.image.registry`                     | Bitnami Shell image registry                                                                                  | `docker.io`             |
-| `volumePermissions.image.repository`                   | Bitnami Shell image repository                                                                                | `bitnami/bitnami-shell` |
+| `volumePermissions.image.repository`                   | Bitnami Shell image repository                                                                                | `bitnamilegacy/os-shell` |
 | `volumePermissions.image.tag`                          | Bitnami Shell image tag (immutable tags are recommended)                                                      | `11-debian-11-r112`     |
 | `volumePermissions.image.digest`                       | Bitnami Shell image digest in the way sha256:aa.... Please note this parameter, if set, will override the tag | `""`                    |
 | `volumePermissions.image.pullPolicy`                   | Bitnami Shell image pull policy                                                                               | `IfNotPresent`          |
@@ -386,20 +390,21 @@ Note: The command above may differ a little depending the k8s cluster version yo
 
 ### Other Parameters
 
-| Name                                          | Description                                                            | Value   |
-|-----------------------------------------------|------------------------------------------------------------------------|---------|
-| `serviceAccount.create`                       | Enable creation of ServiceAccount for Nominatim pod                    | `false` |
-| `serviceAccount.name`                         | The name of the ServiceAccount to use.                                 | `""`    |
-| `serviceAccount.automountServiceAccountToken` | Allows auto mount of ServiceAccountToken on the serviceAccount created | `true`  |
-| `serviceAccount.annotations`                  | Additional custom annotations for the ServiceAccount                   | `{}`    |
-| `pdb.create`                                  | Enable a Pod Disruption Budget creation                                | `false` |
-| `pdb.minAvailable`                            | Minimum number/percentage of pods that should remain scheduled         | `1`     |
-| `pdb.maxUnavailable`                          | Maximum number/percentage of pods that may be made unavailable         | `""`    |
-| `autoscaling.enabled`                         | Enable Horizontal POD autoscaling for Nominatim                        | `false` |
-| `autoscaling.minReplicas`                     | Minimum number of Nominatim replicas                                   | `1`     |
-| `autoscaling.maxReplicas`                     | Maximum number of Nominatim replicas                                   | `11`    |
-| `autoscaling.targetCPU`                       | Target CPU utilization percentage                                      | `50`    |
-| `autoscaling.targetMemory`                    | Target Memory utilization percentage                                   | `50`    |
+| Name                                          | Description                                                            | Value                                     |
+|-----------------------------------------------|------------------------------------------------------------------------|-------------------------------------------|
+| `serviceAccount.create`                       | Enable creation of ServiceAccount for Nominatim pod                    | `false`                                   |
+| `serviceAccount.name`                         | The name of the ServiceAccount to use.                                 | `""`                                      |
+| `serviceAccount.automountServiceAccountToken` | Allows auto mount of ServiceAccountToken on the serviceAccount created | `true`                                    |
+| `serviceAccount.annotations`                  | Additional custom annotations for the ServiceAccount                   | `{}`                                      |
+| `pdb.create`                                  | Enable a Pod Disruption Budget creation                                | `false`                                   |
+| `pdb.minAvailable`                            | Minimum number/percentage of pods that should remain scheduled         | `1`                                       |
+| `pdb.maxUnavailable`                          | Maximum number/percentage of pods that may be made unavailable         | `""`                                      |
+| `pdb.pdbMatchExpressions`                     | MatchExpressions for the pdb selector. Excludes job object by default  | `[{key:job-name, operator:DoesNotExist}]` |
+| `autoscaling.enabled`                         | Enable Horizontal POD autoscaling for Nominatim                        | `false`                                   |
+| `autoscaling.minReplicas`                     | Minimum number of Nominatim replicas                                   | `1`                                       |
+| `autoscaling.maxReplicas`                     | Maximum number of Nominatim replicas                                   | `11`                                      |
+| `autoscaling.targetCPU`                       | Target CPU utilization percentage                                      | `50`                                      |
+| `autoscaling.targetMemory`                    | Target Memory utilization percentage                                   | `50`                                      |
 
 ### NetworkPolicy parameters
 
@@ -482,7 +487,7 @@ To continue, you first need to delete the job
 kubectl delete jobs nominatim-init
 ```
 
-then add the `initJob.continue` 
+then add the `initJob.continue`
 ```yaml
 initJob:
   continue: load-data
@@ -535,7 +540,7 @@ kind: Secret
 metadata:
   name: my-secret
 data:
-  POSTGRESQL_DSN: postgresql://user:password@host:port/database
+  POSTGRESQL_DSN: pgsql:dbname=database;host=host;port=port;user=user;password=password
 ```
 
 ### Ingress
@@ -559,6 +564,10 @@ The chart also facilitates the creation of TLS secrets for use with the Ingress 
 certificate management.
 
 ## Upgrading
+
+### To 5.0.0
+
+This major release bumps the version of Nominatim to 5.1.0 and default PostgreSQL to 16.4.0
 
 ### To 4.0.0
 

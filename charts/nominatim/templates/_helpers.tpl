@@ -64,7 +64,11 @@ Add environment variables to configure database values
 
 
 {{- define "nominatim.databaseName" -}}
-{{- "nominatim" -}}
+{{- if .Values.postgresql.enabled }}
+    {{- "nominatim" -}}
+{{- else -}}
+    {{- printf "%s" .Values.externalDatabase.databaseName -}}
+{{- end -}}
 {{- end -}}
 
 {{- define "nominatim.databaseUser" -}}
@@ -83,12 +87,6 @@ Add environment variables to configure database values
 {{- end -}}
 {{- end -}}
 
-{{/*
-Create the database URL.
-*/}}
-{{- define "nominatim.databaseUrl" -}}
-postgresql://{{ include "nominatim.databaseUser" . }}:{{ include "nominatim.databasePassword" . }}@{{ include "nominatim.databaseHost" . }}:{{ include "nominatim.databasePort" . }}/{{ include "nominatim.databaseName" . }}
-{{- end }}
 
 {{/*
 Create the database DSN.
