@@ -75,7 +75,7 @@ diagnosticMode:
 image:
   registry: docker.io
   repository: mediagis/nominatim
-  tag: 5.1.0
+  tag: 5.2.0
   digest: ""
   ## Specify a imagePullPolicy
   ## Defaults to 'Always' if image tag is 'latest', else set to 'IfNotPresent'
@@ -885,7 +885,7 @@ nominatimUi:
     download:
       image: curlimages/curl
   nginx:
-    image: nginx:1.29.3-alpine
+    image: nginx:1.29.4-alpine
     imagePullPolicy: IfNotPresent
 
   # nginxConfiguration configures the nginx webserver that serves the UI.
