@@ -230,6 +230,26 @@ entries:
     version: 0.1.0
   kimai2:
   - apiVersion: v2
+    appVersion: apache-2.49.0
+    created: "2026-03-02T11:44:47.438881451Z"
+    dependencies:
+    - condition: mariadb.enabled
+      name: mariadb
+      repository: oci://registry-1.docker.io/bitnamicharts
+      version: 11.5.7
+    - name: common
+      repository: oci://registry-1.docker.io/bitnamicharts
+      tags:
+      - bitnami-common
+      version: 2.21.0
+    description: A Helm chart for Kubernetes
+    digest: 514bfe620c7ff389a687bf8db37a3766d0dc24979368720f9155e85e5da024b3
+    name: kimai2
+    type: application
+    urls:
+    - https://github.com/mprenditore/helm-charts-robjuz/releases/download/kimai2-5.0.5/kimai2-5.0.5.tgz
+    version: 5.0.5
+  - apiVersion: v2
     appVersion: apache-2.44.0
     created: "2025-12-26T11:37:01.798332036Z"
     dependencies:
@@ -1473,6 +1493,26 @@ entries:
     - https://github.com/robjuz/helm-charts/releases/download/kirby3-1.0.0/kirby3-1.0.0.tgz
     version: 1.0.0
   nominatim:
+  - annotations:
+      repository: robjuz/helm-charts
+    apiVersion: v2
+    appVersion: 5.2.0
+    created: "2026-03-02T11:44:47.614005424Z"
+    dependencies:
+    - name: common
+      repository: https://charts.bitnami.com/bitnami
+      version: 2.21.0
+    - condition: postgresql.enabled
+      name: postgresql
+      repository: https://charts.bitnami.com/bitnami
+      version: 15.5.38
+    description: A Helm chart for Kubernetes
+    digest: a53f707baab253ca66990cbd7feba72f0be359e1a0157c42a7e0c7d078939f54
+    name: nominatim
+    type: application
+    urls:
+    - https://github.com/mprenditore/helm-charts-robjuz/releases/download/nominatim-6.1.0/nominatim-6.1.0.tgz
+    version: 6.1.0
   - annotations:
       repository: robjuz/helm-charts
     apiVersion: v2
@@ -2733,4 +2773,4 @@ entries:
     urls:
     - https://github.com/robjuz/helm-charts/releases/download/unpubd-1.0.0/unpubd-1.0.0.tgz
     version: 1.0.0
-generated: "2025-12-26T11:37:02.009811739Z"
+generated: "2026-03-02T11:44:47.61448034Z"
