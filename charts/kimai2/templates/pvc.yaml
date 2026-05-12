@@ -1,4 +1,5 @@
-{{- if and .Values.persistence.enabled (not .Values.persistence.existingClaim) }}
+{{- if .Values.persistence.enabled }}
+{{- if not .Values.persistence.existingClaim }}
 ---
 kind: PersistentVolumeClaim
 apiVersion: v1
@@ -33,106 +34,55 @@ spec:
   {{- if .Values.persistence.selector }}
   selector: {{- include "common.tplvalues.render" (dict "value" .Values.persistence.selector "context" $) | nindent 4 }}
   {{- end }}
+{{- end }}
+{{- range $name, $config := .Values.persistence.extraVolumeClaims }}
+{{- if $config.enabled }}
+{{- if not $config.mountPath }}
+{{- fail (printf "persistence.extraVolumeClaims.%s.mountPath is required when the claim is enabled" $name) }}
+{{- end }}
+{{- if not $config.existingClaim }}
+{{- $persistence := $.Values.persistence }}
+{{- $accessModes := ternary $persistence.accessModes $config.accessModes (empty $config.accessModes) }}
+{{- $size := default $persistence.size $config.size }}
+{{- $dataSource := ternary $persistence.dataSource $config.dataSource (empty $config.dataSource) }}
+{{- $selector := ternary $persistence.selector $config.selector (empty $config.selector) }}
+{{- $storageClassRef := dict "storageClass" (default $persistence.storageClass $config.storageClass) }}
+{{- $annotations := merge (deepCopy (default (dict) $config.annotations)) (default (dict) $persistence.annotations) }}
 ---
 kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
-  name: {{ include "common.names.fullname" . }}-export
-  namespace: {{ .Release.Namespace | quote }}
-  labels: {{- include "common.labels.standard" . | nindent 4 }}
-    {{- if .Values.commonLabels }}
-    {{- include "common.tplvalues.render" ( dict "value" .Values.commonLabels "context" $ ) | nindent 4 }}
+  name: {{ printf "%s-%s" (include "common.names.fullname" $) $name }}
+  namespace: {{ $.Release.Namespace | quote }}
+  labels: {{- include "common.labels.standard" $ | nindent 4 }}
+    {{- if $.Values.commonLabels }}
+    {{- include "common.tplvalues.render" ( dict "value" $.Values.commonLabels "context" $ ) | nindent 4 }}
     {{- end }}
-  {{- if or .Values.persistence.annotations .Values.commonAnnotations }}
+  {{- if or $annotations $.Values.commonAnnotations }}
   annotations:
-    {{- if .Values.persistence.annotations }}
-    {{- include "common.tplvalues.render" ( dict "value" .Values.persistence.annotations "context" $ ) | nindent 4 }}
+    {{- if $annotations }}
+    {{- include "common.tplvalues.render" ( dict "value" $annotations "context" $ ) | nindent 4 }}
     {{- end }}
-    {{- if .Values.commonAnnotations }}
-    {{- include "common.tplvalues.render" ( dict "value" .Values.commonAnnotations "context" $ ) | nindent 4 }}
+    {{- if $.Values.commonAnnotations }}
+    {{- include "common.tplvalues.render" ( dict "value" $.Values.commonAnnotations "context" $ ) | nindent 4 }}
     {{- end }}
   {{- end }}
 spec:
   accessModes:
-    {{- range .Values.persistence.accessModes }}
+    {{- range $accessModes }}
     - {{ . | quote }}
       {{- end }}
   resources:
     requests:
-      storage: "100M"
-  {{- include "common.storage.class" (dict "persistence" .Values.persistence "global" .Values.global) | nindent 2 }}
-  {{- if .Values.persistence.dataSource }}
-  dataSource: {{- include "common.tplvalues.render" (dict "value" .Values.persistence.dataSource "context" $) | nindent 4 }}
+      storage: {{ $size | quote }}
+  {{- include "common.storage.class" (dict "persistence" $storageClassRef "global" $.Values.global) | nindent 2 }}
+  {{- if $dataSource }}
+  dataSource: {{- include "common.tplvalues.render" (dict "value" $dataSource "context" $) | nindent 4 }}
   {{- end }}
-  {{- if .Values.persistence.selector }}
-  selector: {{- include "common.tplvalues.render" (dict "value" .Values.persistence.selector "context" $) | nindent 4 }}
+  {{- if $selector }}
+  selector: {{- include "common.tplvalues.render" (dict "value" $selector "context" $) | nindent 4 }}
   {{- end }}
----
-kind: PersistentVolumeClaim
-apiVersion: v1
-metadata:
-  name: {{ include "common.names.fullname" . }}-invoices
-  namespace: {{ .Release.Namespace | quote }}
-  labels: {{- include "common.labels.standard" . | nindent 4 }}
-    {{- if .Values.commonLabels }}
-    {{- include "common.tplvalues.render" ( dict "value" .Values.commonLabels "context" $ ) | nindent 4 }}
-    {{- end }}
-  {{- if or .Values.persistence.annotations .Values.commonAnnotations }}
-  annotations:
-    {{- if .Values.persistence.annotations }}
-    {{- include "common.tplvalues.render" ( dict "value" .Values.persistence.annotations "context" $ ) | nindent 4 }}
-    {{- end }}
-    {{- if .Values.commonAnnotations }}
-    {{- include "common.tplvalues.render" ( dict "value" .Values.commonAnnotations "context" $ ) | nindent 4 }}
-    {{- end }}
-  {{- end }}
-spec:
-  accessModes:
-    {{- range .Values.persistence.accessModes }}
-    - {{ . | quote }}
-      {{- end }}
-  resources:
-    requests:
-      storage: "100M"
-  {{- include "common.storage.class" (dict "persistence" .Values.persistence "global" .Values.global) | nindent 2 }}
-  {{- if .Values.persistence.dataSource }}
-  dataSource: {{- include "common.tplvalues.render" (dict "value" .Values.persistence.dataSource "context" $) | nindent 4 }}
-  {{- end }}
-  {{- if .Values.persistence.selector }}
-  selector: {{- include "common.tplvalues.render" (dict "value" .Values.persistence.selector "context" $) | nindent 4 }}
-  {{- end }}
----
-kind: PersistentVolumeClaim
-apiVersion: v1
-metadata:
-  name: {{ include "common.names.fullname" . }}-plugins
-  namespace: {{ .Release.Namespace | quote }}
-  labels: {{- include "common.labels.standard" . | nindent 4 }}
-    {{- if .Values.commonLabels }}
-    {{- include "common.tplvalues.render" ( dict "value" .Values.commonLabels "context" $ ) | nindent 4 }}
-    {{- end }}
-  {{- if or .Values.persistence.annotations .Values.commonAnnotations }}
-  annotations:
-    {{- if .Values.persistence.annotations }}
-    {{- include "common.tplvalues.render" ( dict "value" .Values.persistence.annotations "context" $ ) | nindent 4 }}
-    {{- end }}
-    {{- if .Values.commonAnnotations }}
-    {{- include "common.tplvalues.render" ( dict "value" .Values.commonAnnotations "context" $ ) | nindent 4 }}
-    {{- end }}
-  {{- end }}
-spec:
-  accessModes:
-    {{- range .Values.persistence.accessModes }}
-    - {{ . | quote }}
-      {{- end }}
-  resources:
-    requests:
-      storage: "1G"
-  {{- include "common.storage.class" (dict "persistence" .Values.persistence "global" .Values.global) | nindent 2 }}
-  {{- if .Values.persistence.dataSource }}
-  dataSource: {{- include "common.tplvalues.render" (dict "value" .Values.persistence.dataSource "context" $) | nindent 4 }}
-  {{- end }}
-  {{- if .Values.persistence.selector }}
-  selector: {{- include "common.tplvalues.render" (dict "value" .Values.persistence.selector "context" $) | nindent 4 }}
-  {{- end -}}
+{{- end }}
+{{- end }}
+{{- end }}
 {{- end }}

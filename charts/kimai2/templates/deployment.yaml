@@ -191,15 +191,15 @@ spec:
             - mountPath: /opt/kimai/var/data
               name: kimai-data
               subPath: data
-            - mountPath: /opt/kimai/var/export
-              name: kimai-export
-              subPath: export
-            - mountPath: /opt/kimai/var/invoices
-              name: kimai-invoices
-              subPath: invoices
-            - mountPath: /opt/kimai/var/plugins
-              name: kimai-plugins
-              subPath: plugins
+            {{- range $name, $config := .Values.persistence.extraVolumeClaims }}
+            {{- if $config.enabled }}
+            - mountPath: {{ required (printf "persistence.extraVolumeClaims.%s.mountPath is required when the claim is enabled" $name) $config.mountPath }}
+              name: {{ printf "kimai-%s" $name }}
+              {{- if $config.subPath }}
+              subPath: {{ $config.subPath }}
+              {{- end }}
+            {{- end }}
+            {{- end }}
             {{- if .Values.extraVolumeMounts }}
             {{- include "common.tplvalues.render" (dict "value" .Values.extraVolumeMounts "context" $) | nindent 12 }}
             {{- end }}
@@ -230,27 +230,17 @@ spec:
           {{- else }}
           emptyDir: {}
           {{- end }}
-        - name: kimai-export
-          {{- if .Values.persistence.enabled }}
+        {{- range $name, $config := .Values.persistence.extraVolumeClaims }}
+        {{- if $config.enabled }}
+        - name: {{ printf "kimai-%s" $name }}
+          {{- if $.Values.persistence.enabled }}
           persistentVolumeClaim:
-            claimName: {{ .Values.persistence.existingClaim | default (include "common.names.fullname" .) }}-export
+            claimName: {{ $config.existingClaim | default (printf "%s-%s" (include "common.names.fullname" $) $name) }}
           {{- else }}
           emptyDir: {}
           {{- end }}
-        - name: kimai-invoices
-          {{- if .Values.persistence.enabled }}
-          persistentVolumeClaim:
-            claimName: {{ .Values.persistence.existingClaim | default (include "common.names.fullname" .) }}-invoices
-          {{- else }}
-          emptyDir: {}
-          {{- end }}
-        - name: kimai-plugins
-          {{- if .Values.persistence.enabled }}
-          persistentVolumeClaim:
-            claimName: {{ .Values.persistence.existingClaim | default (include "common.names.fullname" .) }}-plugins
-          {{- else }}
-          emptyDir: {}
-          {{- end }}
+        {{- end }}
+        {{- end }}
         {{- if .Values.extraVolumes }}
         {{- include "common.tplvalues.render" (dict "value" .Values.extraVolumes "context" $) | nindent 8 }}
         {{- end }}

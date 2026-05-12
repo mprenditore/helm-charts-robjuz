@@ -203,6 +203,37 @@ The command removes all the Kubernetes components associated with the chart and 
 | `persistence.existingClaim`                            | The name of an existing PVC to use for persistence                                                            | `""`                    |
 | `persistence.selector`                                 | Selector to match an existing Persistent Volume for Kimai data PVC                                            | `{}`                    |
 | `persistence.annotations`                              | Persistent Volume Claim annotations                                                                           | `{}`                    |
+| `persistence.extraVolumeClaims`                                  | Additional PVCs to create and mount inside the Kimai container (keyed map). Per-claim fields override `persistence.*` defaults; `mountPath` is required. Ships with pre-configured entries for `export`, `invoices`, and `plugins` (all disabled by default — set `enabled: true` to opt in). | _see values.yaml_       |
+| `persistence.extraVolumeClaims.export.enabled`         | Create and mount the `export` PVC at `/opt/kimai/var/export`                                                  | `false`                 |
+| `persistence.extraVolumeClaims.export.mountPath`       | Mount path inside the Kimai container                                                                         | `/opt/kimai/var/export` |
+| `persistence.extraVolumeClaims.export.subPath`         | SubPath inside the volume to mount (optional)                                                                 | `export`                |
+| `persistence.extraVolumeClaims.export.size`            | PVC size; falls back to `persistence.size` when empty                                                         | `100M`                  |
+| `persistence.extraVolumeClaims.export.storageClass`    | PVC storage class; falls back to `persistence.storageClass` (then `global.storageClass`) when empty           | `""`                    |
+| `persistence.extraVolumeClaims.export.accessModes`     | PVC access modes; falls back to `persistence.accessModes` when empty                                          | `[]`                    |
+| `persistence.extraVolumeClaims.export.existingClaim`   | Name of an existing PVC to mount instead of creating one                                                      | `""`                    |
+| `persistence.extraVolumeClaims.export.dataSource`      | Custom PVC data source; falls back to `persistence.dataSource` when empty                                     | `{}`                    |
+| `persistence.extraVolumeClaims.export.selector`        | PVC selector; falls back to `persistence.selector` when empty                                                 | `{}`                    |
+| `persistence.extraVolumeClaims.export.annotations`     | PVC annotations merged with `persistence.annotations` (per-claim wins on conflict)                            | `{}`                    |
+| `persistence.extraVolumeClaims.invoices.enabled`       | Create and mount the `invoices` PVC at `/opt/kimai/var/invoices`                                              | `false`                 |
+| `persistence.extraVolumeClaims.invoices.mountPath`     | Mount path inside the Kimai container                                                                         | `/opt/kimai/var/invoices` |
+| `persistence.extraVolumeClaims.invoices.subPath`       | SubPath inside the volume to mount (optional)                                                                 | `invoices`              |
+| `persistence.extraVolumeClaims.invoices.size`          | PVC size; falls back to `persistence.size` when empty                                                         | `100M`                  |
+| `persistence.extraVolumeClaims.invoices.storageClass`  | PVC storage class; falls back to `persistence.storageClass` (then `global.storageClass`) when empty           | `""`                    |
+| `persistence.extraVolumeClaims.invoices.accessModes`   | PVC access modes; falls back to `persistence.accessModes` when empty                                          | `[]`                    |
+| `persistence.extraVolumeClaims.invoices.existingClaim` | Name of an existing PVC to mount instead of creating one                                                      | `""`                    |
+| `persistence.extraVolumeClaims.invoices.dataSource`    | Custom PVC data source; falls back to `persistence.dataSource` when empty                                     | `{}`                    |
+| `persistence.extraVolumeClaims.invoices.selector`      | PVC selector; falls back to `persistence.selector` when empty                                                 | `{}`                    |
+| `persistence.extraVolumeClaims.invoices.annotations`   | PVC annotations merged with `persistence.annotations` (per-claim wins on conflict)                            | `{}`                    |
+| `persistence.extraVolumeClaims.plugins.enabled`        | Create and mount the `plugins` PVC at `/opt/kimai/var/plugins`                                                | `false`                 |
+| `persistence.extraVolumeClaims.plugins.mountPath`      | Mount path inside the Kimai container                                                                         | `/opt/kimai/var/plugins` |
+| `persistence.extraVolumeClaims.plugins.subPath`        | SubPath inside the volume to mount (optional)                                                                 | `plugins`               |
+| `persistence.extraVolumeClaims.plugins.size`           | PVC size; falls back to `persistence.size` when empty                                                         | `1G`                    |
+| `persistence.extraVolumeClaims.plugins.storageClass`   | PVC storage class; falls back to `persistence.storageClass` (then `global.storageClass`) when empty           | `""`                    |
+| `persistence.extraVolumeClaims.plugins.accessModes`    | PVC access modes; falls back to `persistence.accessModes` when empty                                          | `[]`                    |
+| `persistence.extraVolumeClaims.plugins.existingClaim`  | Name of an existing PVC to mount instead of creating one                                                      | `""`                    |
+| `persistence.extraVolumeClaims.plugins.dataSource`     | Custom PVC data source; falls back to `persistence.dataSource` when empty                                     | `{}`                    |
+| `persistence.extraVolumeClaims.plugins.selector`       | PVC selector; falls back to `persistence.selector` when empty                                                 | `{}`                    |
+| `persistence.extraVolumeClaims.plugins.annotations`    | PVC annotations merged with `persistence.annotations` (per-claim wins on conflict)                            | `{}`                    |
 | `volumePermissions.enabled`                            | Enable init container that changes the owner/group of the PV mount point to `runAsUser:fsGroup`               | `false`                 |
 | `volumePermissions.image.registry`                     | Bitnami Shell image registry                                                                                  | `docker.io`             |
 | `volumePermissions.image.repository`                   | Bitnami Shell image repository                                                                                | `bitnamilegacy/os-shell` |
@@ -326,6 +357,10 @@ extraVolumeMounts:
 ```
 
 ## Upgrading
+
+### To 5.1.0
+
+Adds `persistence.extraVolumeClaims` for provisioning additional PersistentVolumeClaims alongside the main `kimai-data` PVC. The chart ships with pre-configured entries for three volumes commonly used by Kimai (`export`, `invoices`, `plugins`) mounted under `/opt/kimai/var/`; all three are disabled by default, so existing installations are not affected. Set `persistence.extraVolumeClaims.<name>.enabled: true` to opt in. Per-claim fields (`size`, `storageClass`, `accessModes`, `dataSource`, `selector`, `annotations`, `existingClaim`) override the parent `persistence.*` defaults; leave them empty to inherit.
 
 ### To 5.0.0
 

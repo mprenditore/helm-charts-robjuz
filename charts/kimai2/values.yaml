@@ -631,6 +631,91 @@ persistence:
   ## @param persistence.annotations Persistent Volume Claim annotations
   ##
   annotations: {}
+  ## @param persistence.extraVolumeClaims Additional PersistentVolumeClaims to create and mount inside the Kimai container.
+  ## Each map key (e.g. `export`) results in a PVC named `<fullname>-<key>` mounted at the supplied `mountPath`.
+  ## Per-claim fields override the parent `persistence.*` defaults; when left empty (`""`, `[]`, `{}`) the parent value is used.
+  ## `mountPath` is required when `enabled` is `true`. `subPath` is optional. `existingClaim` skips PVC creation
+  ## and mounts the named PVC instead.
+  ## E.g.
+  ## extraVolumeClaims:
+  ##   reports:
+  ##     enabled: true
+  ##     mountPath: /opt/kimai/var/reports
+  ##     subPath: reports
+  ##     size: 500Mi
+  ##     storageClass: fast-ssd
+  ##     accessModes:
+  ##       - ReadWriteOnce
+  ##     existingClaim: ""
+  ##     dataSource: {}
+  ##     selector: {}
+  ##     annotations: {}
+  ##
+  ## @param persistence.extraVolumeClaims.export.enabled Create and mount the `export` PVC (`/opt/kimai/var/export`)
+  ## @param persistence.extraVolumeClaims.export.mountPath Mount path inside the Kimai container
+  ## @param persistence.extraVolumeClaims.export.subPath SubPath inside the volume to mount (optional)
+  ## @param persistence.extraVolumeClaims.export.size PVC size; falls back to `persistence.size` when empty
+  ## @param persistence.extraVolumeClaims.export.storageClass PVC storage class; falls back to `persistence.storageClass` when empty
+  ## @param persistence.extraVolumeClaims.export.accessModes PVC access modes; falls back to `persistence.accessModes` when empty
+  ## @param persistence.extraVolumeClaims.export.existingClaim Name of an existing PVC to mount instead of creating one
+  ## @param persistence.extraVolumeClaims.export.dataSource Custom PVC data source; falls back to `persistence.dataSource` when empty
+  ## @param persistence.extraVolumeClaims.export.selector PVC selector; falls back to `persistence.selector` when empty
+  ## @param persistence.extraVolumeClaims.export.annotations PVC annotations merged with `persistence.annotations` (per-claim wins on conflict)
+  ## @param persistence.extraVolumeClaims.invoices.enabled Create and mount the `invoices` PVC (`/opt/kimai/var/invoices`)
+  ## @param persistence.extraVolumeClaims.invoices.mountPath Mount path inside the Kimai container
+  ## @param persistence.extraVolumeClaims.invoices.subPath SubPath inside the volume to mount (optional)
+  ## @param persistence.extraVolumeClaims.invoices.size PVC size; falls back to `persistence.size` when empty
+  ## @param persistence.extraVolumeClaims.invoices.storageClass PVC storage class; falls back to `persistence.storageClass` when empty
+  ## @param persistence.extraVolumeClaims.invoices.accessModes PVC access modes; falls back to `persistence.accessModes` when empty
+  ## @param persistence.extraVolumeClaims.invoices.existingClaim Name of an existing PVC to mount instead of creating one
+  ## @param persistence.extraVolumeClaims.invoices.dataSource Custom PVC data source; falls back to `persistence.dataSource` when empty
+  ## @param persistence.extraVolumeClaims.invoices.selector PVC selector; falls back to `persistence.selector` when empty
+  ## @param persistence.extraVolumeClaims.invoices.annotations PVC annotations merged with `persistence.annotations` (per-claim wins on conflict)
+  ## @param persistence.extraVolumeClaims.plugins.enabled Create and mount the `plugins` PVC (`/opt/kimai/var/plugins`)
+  ## @param persistence.extraVolumeClaims.plugins.mountPath Mount path inside the Kimai container
+  ## @param persistence.extraVolumeClaims.plugins.subPath SubPath inside the volume to mount (optional)
+  ## @param persistence.extraVolumeClaims.plugins.size PVC size; falls back to `persistence.size` when empty
+  ## @param persistence.extraVolumeClaims.plugins.storageClass PVC storage class; falls back to `persistence.storageClass` when empty
+  ## @param persistence.extraVolumeClaims.plugins.accessModes PVC access modes; falls back to `persistence.accessModes` when empty
+  ## @param persistence.extraVolumeClaims.plugins.existingClaim Name of an existing PVC to mount instead of creating one
+  ## @param persistence.extraVolumeClaims.plugins.dataSource Custom PVC data source; falls back to `persistence.dataSource` when empty
+  ## @param persistence.extraVolumeClaims.plugins.selector PVC selector; falls back to `persistence.selector` when empty
+  ## @param persistence.extraVolumeClaims.plugins.annotations PVC annotations merged with `persistence.annotations` (per-claim wins on conflict)
+  ##
+  extraVolumeClaims:
+    export:
+      enabled: false
+      mountPath: /opt/kimai/var/export
+      subPath: export
+      size: 100M
+      storageClass: ""
+      accessModes: []
+      existingClaim: ""
+      dataSource: {}
+      selector: {}
+      annotations: {}
+    invoices:
+      enabled: false
+      mountPath: /opt/kimai/var/invoices
+      subPath: invoices
+      size: 100M
+      storageClass: ""
+      accessModes: []
+      existingClaim: ""
+      dataSource: {}
+      selector: {}
+      annotations: {}
+    plugins:
+      enabled: false
+      mountPath: /opt/kimai/var/plugins
+      subPath: plugins
+      size: 1G
+      storageClass: ""
+      accessModes: []
+      existingClaim: ""
+      dataSource: {}
+      selector: {}
+      annotations: {}
 
 ## Init containers parameters:
 ## volumePermissions: Change the owner and group of the persistent volume(s) mountpoint(s) to 'runAsUser:fsGroup' on each node
