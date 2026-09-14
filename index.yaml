@@ -229,6 +229,28 @@ entries:
     - https://github.com/robjuz/helm-charts/releases/download/futtertrog-0.1.0/futtertrog-0.1.0.tgz
     version: 0.1.0
   kimai2:
+  - annotations:
+      dockerImage: kimai/kimai2
+    apiVersion: v2
+    appVersion: 2.67.0
+    created: "2026-09-14T09:15:14.504419275Z"
+    dependencies:
+    - condition: mariadb.enabled
+      name: mariadb
+      repository: oci://registry-1.docker.io/bitnamicharts
+      version: 11.5.7
+    - name: common
+      repository: oci://registry-1.docker.io/bitnamicharts
+      tags:
+      - bitnami-common
+      version: 2.21.0
+    description: A Helm chart for Kubernetes
+    digest: 6327ca00ad15d39972116293fa1b09568330642d3af79310fa12d7e9fed26964
+    name: kimai2
+    type: application
+    urls:
+    - https://github.com/mprenditore/helm-charts-robjuz/releases/download/kimai2-5.1.14/kimai2-5.1.14.tgz
+    version: 5.1.14
   - apiVersion: v2
     appVersion: apache-2.56.0
     created: "2026-05-12T14:04:45.59309881Z"
@@ -2876,4 +2898,4 @@ entries:
     urls:
     - https://github.com/robjuz/helm-charts/releases/download/unpubd-1.0.0/unpubd-1.0.0.tgz
     version: 1.0.0
-generated: "2026-09-14T09:09:18.993550748Z"
+generated: "2026-09-14T09:15:14.504833606Z"
