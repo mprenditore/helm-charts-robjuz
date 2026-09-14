@@ -249,6 +249,28 @@ entries:
     urls:
     - https://github.com/mprenditore/helm-charts-robjuz/releases/download/kimai2-5.1.0/kimai2-5.1.0.tgz
     version: 5.1.0
+  - annotations:
+      dockerImage: kimai/kimai2
+    apiVersion: v2
+    appVersion: 2.67.0
+    created: "2026-09-14T09:09:18.751101082Z"
+    dependencies:
+    - condition: mariadb.enabled
+      name: mariadb
+      repository: oci://registry-1.docker.io/bitnamicharts
+      version: 11.5.7
+    - name: common
+      repository: oci://registry-1.docker.io/bitnamicharts
+      tags:
+      - bitnami-common
+      version: 2.21.0
+    description: A Helm chart for Kubernetes
+    digest: 5688b7893da158dd36b2aef0a55face8c3911bc3ca61ea564148e47880b9612d
+    name: kimai2
+    type: application
+    urls:
+    - https://github.com/mprenditore/helm-charts-robjuz/releases/download/kimai2-5.0.14/kimai2-5.0.14.tgz
+    version: 5.0.14
   - apiVersion: v2
     appVersion: apache-2.56.0
     created: "2026-05-11T15:28:43.161384457Z"
@@ -1554,6 +1576,27 @@ entries:
     version: 1.0.0
   nominatim:
   - annotations:
+      dockerImage: mediagis/nominatim
+      repository: robjuz/helm-charts
+    apiVersion: v2
+    appVersion: 5.3.2
+    created: "2026-09-14T09:09:18.993247889Z"
+    dependencies:
+    - name: common
+      repository: https://charts.bitnami.com/bitnami
+      version: 2.21.0
+    - condition: postgresql.enabled
+      name: postgresql
+      repository: https://charts.bitnami.com/bitnami
+      version: 15.5.38
+    description: A Helm chart for Kubernetes
+    digest: ccb5c45b6d3c32b29da962db962a5e41b6f2847023d94f6d1d5395a2ca06eaf6
+    name: nominatim
+    type: application
+    urls:
+    - https://github.com/mprenditore/helm-charts-robjuz/releases/download/nominatim-6.4.1/nominatim-6.4.1.tgz
+    version: 6.4.1
+  - annotations:
       repository: robjuz/helm-charts
     apiVersion: v2
     appVersion: 5.2.0
@@ -2833,4 +2876,4 @@ entries:
     urls:
     - https://github.com/robjuz/helm-charts/releases/download/unpubd-1.0.0/unpubd-1.0.0.tgz
     version: 1.0.0
-generated: "2026-05-12T14:04:45.593353928Z"
+generated: "2026-09-14T09:09:18.993550748Z"
