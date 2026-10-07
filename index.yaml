@@ -232,6 +232,28 @@ entries:
   - annotations:
       dockerImage: kimai/kimai2
     apiVersion: v2
+    appVersion: 2.69.0
+    created: "2026-10-07T13:51:23.304955791Z"
+    dependencies:
+    - condition: mariadb.enabled
+      name: mariadb
+      repository: oci://registry-1.docker.io/bitnamicharts
+      version: 11.5.7
+    - name: common
+      repository: oci://registry-1.docker.io/bitnamicharts
+      tags:
+      - bitnami-common
+      version: 2.21.0
+    description: A Helm chart for Kubernetes
+    digest: a34ed3294edf46de7c2bfc10d4b472ab544d28708db1c9020d7c30086fa21545
+    name: kimai2
+    type: application
+    urls:
+    - https://github.com/mprenditore/helm-charts-robjuz/releases/download/kimai2-5.1.15/kimai2-5.1.15.tgz
+    version: 5.1.15
+  - annotations:
+      dockerImage: kimai/kimai2
+    apiVersion: v2
     appVersion: 2.67.0
     created: "2026-09-14T09:15:14.504419275Z"
     dependencies:
@@ -1602,6 +1624,27 @@ entries:
       repository: robjuz/helm-charts
     apiVersion: v2
     appVersion: 5.3.2
+    created: "2026-10-07T13:51:23.682341438Z"
+    dependencies:
+    - name: common
+      repository: https://charts.bitnami.com/bitnami
+      version: 2.21.0
+    - condition: postgresql.enabled
+      name: postgresql
+      repository: https://charts.bitnami.com/bitnami
+      version: 15.5.38
+    description: A Helm chart for Kubernetes
+    digest: 5003e826246f22a32b8a551c71cdb50d2130a8e57d1693925e6903b6c92748f5
+    name: nominatim
+    type: application
+    urls:
+    - https://github.com/mprenditore/helm-charts-robjuz/releases/download/nominatim-6.4.2/nominatim-6.4.2.tgz
+    version: 6.4.2
+  - annotations:
+      dockerImage: mediagis/nominatim
+      repository: robjuz/helm-charts
+    apiVersion: v2
+    appVersion: 5.3.2
     created: "2026-09-14T09:09:18.993247889Z"
     dependencies:
     - name: common
@@ -2898,4 +2941,4 @@ entries:
     urls:
     - https://github.com/robjuz/helm-charts/releases/download/unpubd-1.0.0/unpubd-1.0.0.tgz
     version: 1.0.0
-generated: "2026-09-14T09:18:58.601623464Z"
+generated: "2026-10-07T13:51:23.682717412Z"
